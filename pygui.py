@@ -114,7 +114,7 @@ def gui_process(shared, config):
     pg.init()
     FONT = pg.font.SysFont("Arial", 20)
     screen = pg.display.set_mode((600, 800))
-    pg.display.set_caption("pygui Control Panel")
+    pg.display.set_caption("PyGUI")
     clock = pg.time.Clock()
 
     y = 50
