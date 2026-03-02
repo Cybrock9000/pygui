@@ -12,7 +12,7 @@ GREEN = (0, 200, 0)
 _widgets = {}
 _scroll_offset = 0
 
-_shared = None  # <--- Store shared dict globally
+_shared = None  
 
 class TextInput:
     def __init__(self, x, y, w=120, h=30, text=''):
