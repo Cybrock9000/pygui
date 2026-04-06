@@ -3,10 +3,12 @@ import pygui
 
 if __name__ == "__main__":
     shared = pygui.create({
+        "TEST": "title",
         "E": "slider",
         "y": "slider",
         "fullscreen": "bool",
-        "username": "input"
+        "username": "input",
+        "click": "button"
     })
 
     pg.init()
@@ -24,9 +26,10 @@ if __name__ == "__main__":
         y_val = pygui.get_value("y", 0)
         username = pygui.get_value("username", "")
         fullscreen = pygui.get_value("fullscreen", False)
+        click = pygui.get_value("click", 0)
 
         screen.fill((30, 30, 30))
-        pg.display.set_caption(f"x={x_val} y={y_val} user={username} fullscreen={fullscreen}")
+        pg.display.set_caption(f"x={x_val} y={y_val} user={username} fullscreen={fullscreen} click={click}")
         pg.display.flip()
         clock.tick(60)
 

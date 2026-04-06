@@ -1,10 +1,11 @@
 import pygame as pg
 import multiprocessing
+from CybrocksLibrary import Button
 
 pg.init()
 FONT = pg.font.SysFont("Arial", 20)
 WHITE = (255, 255, 255)
-GRAY = (48, 48, 48)
+GRAY = (48, 48, 75)
 LIGHT_GRAY = (80, 80, 80)
 DARK_GRAY = (30, 30, 30)
 GREEN = (0, 200, 0)
@@ -13,6 +14,45 @@ _widgets = {}
 _scroll_offset = 0
 
 _shared = None  
+
+class ButtonG:
+    def __init__(self, x, y, w=120, h=30, text='', shared=None):
+        self.shared = shared
+        self.name = text
+        self.rect = pg.Rect(x, y, w, h)
+        self.text = text
+        self.button = Button("textures/button.png", (x,y), 6, 2)
+        self.holdB = False
+
+    def draw(self, screen, offset):
+        rect = self.rect.move(0, offset)
+        self.button.draw(screen)
+        self.button.move((rect.x,rect.y))
+        txt = FONT.render(self.text, True, WHITE)
+        screen.blit(txt, (rect.x + 5, rect.y + 5))
+        
+    def handle_event(self, event):
+        if self.button.is_pressed() and self.holdB == False:
+            self.holdB = True
+            self.shared[self.name] = True
+        elif not self.button.is_pressed() and not self.holdB == False:
+            self.holdB = False
+            self.shared[self.name] = False
+
+class JustText:
+    def __init__(self, x, y, w=120, h=30, text=''):
+        self.rect = pg.Rect(x, y, w, h)
+        self.text = text
+        self.active = False
+
+    def draw(self, screen, offset):
+        rect = self.rect.move(0, offset)
+        color = WHITE if self.active else LIGHT_GRAY
+        txt = FONT.render(self.text, True, WHITE)
+        screen.blit(txt, (rect.x + 5, rect.y + 5))
+        
+    def handle_event(self, event):
+        pass
 
 class TextInput:
     def __init__(self, x, y, w=120, h=30, text=''):
@@ -39,7 +79,8 @@ class TextInput:
         screen.blit(txt, (rect.x + 5, rect.y + 5))
 
 class SliderWidget:
-    def __init__(self, name, x, y, shared):
+    def __init__(self, name, x, y, shared, srange=255):
+        self.srange = srange
         self.name = name
         self.shared = shared
         self.label = FONT.render(name, True, WHITE)
@@ -66,7 +107,7 @@ class SliderWidget:
         elif event.type == pg.MOUSEMOTION and self.dragging:
             new_x = event.pos[0]
             self.slider_rect.x = max(self.rect.x, min(new_x, self.rect.right - self.slider_rect.width))
-            value = int(((self.slider_rect.x - self.rect.x) / (self.rect.width - self.slider_rect.width)) * 1000)
+            value = int(((self.slider_rect.x - self.rect.x) / (self.rect.width - self.slider_rect.width)) * self.srange)
             self.shared[self.name] = value
         self.input.handle_event(event)
 
@@ -109,12 +150,12 @@ class InputWidget:
         self.input.handle_event(event)
         self.shared[self.name] = self.input.text
 
-def gui_process(shared, config):
+def gui_process(shared, config, extra=None):
     global FONT
     pg.init()
     FONT = pg.font.SysFont("Arial", 20)
     screen = pg.display.set_mode((600, 800))
-    pg.display.set_caption("PyGUI")
+    pg.display.set_caption("PyGUI V0.2 By Cybrock")
     clock = pg.time.Clock()
 
     y = 50
@@ -127,6 +168,12 @@ def gui_process(shared, config):
             shared[name] = False
         elif typ == "input":
             _widgets[name] = InputWidget(name, 50, y, shared)
+            shared[name] = ''
+        elif typ == "title":
+            _widgets[name] = JustText(50, y, 120, 30, name)
+            shared[name] = False
+        elif typ == "button":
+            _widgets[name] = ButtonG(50, y, 120, 30, name, shared)
             shared[name] = ''
         y += 60
 
